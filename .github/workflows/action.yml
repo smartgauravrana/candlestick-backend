@@ -33,7 +33,8 @@ jobs:
       - name: Installing node_modules on remote
         run: |
           ssh -y root@${{ secrets.SSH_HOST }}
-          cd ~/app
+          ls -a
+          cd app
           yarn
       - name: Setup finish
         run: echo "Setup Finished!"
