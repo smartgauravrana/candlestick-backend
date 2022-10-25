@@ -36,7 +36,7 @@ jobs:
         run: |
           ssh -y root@${{ secrets.SSH_HOST }} 'cd app && yarn'
           ssh -y root@${{ secrets.SSH_HOST }} 'yarn global add pm2'
-          ssh -y root@${{ secrets.SSH_HOST }} 'pm2 start dist/main.js --name candly'
+          ssh -y root@${{ secrets.SSH_HOST }} 'pm2 start app/dist/main.js --name candly'
           ssh -y root@${{ secrets.SSH_HOST }} 'pm2 startup systemd'
           ssh -y root@${{ secrets.SSH_HOST }} 'pm2 save'
       - name: Setup finish
