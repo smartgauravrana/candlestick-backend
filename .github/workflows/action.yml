@@ -33,6 +33,8 @@ jobs:
       - name: Installing node_modules on remote
         run: |
           ssh -y root@${{ secrets.SSH_HOST }}
+          echo 'before install'
+          ls -a
           yarn
           ls
       - name: Setup finish
