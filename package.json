@@ -26,6 +26,8 @@
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/schedule": "^2.1.0",
+    "@types/cron": "^2.0.0",
     "candlestick": "^0.0.5",
     "dayjs": "^1.11.6",
     "i": "^0.3.7",

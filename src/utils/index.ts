@@ -29,5 +29,5 @@ export const prepareNotifyMsg = (records = []) => {
   }, '');
 
   //   console.log('msg: ', msg);
-  return msg;
+  return sliceMsg(msg);
 };

@@ -6,6 +6,7 @@ import { AVAILABLE_CANDLESTICK_PATTERNS, SECURITY_SYMBOLS } from './constants';
 import * as dayjs from 'dayjs';
 import { SmartAPI, WebSocket } from 'smartapi-javascript';
 import * as getToken from 'totp-generator';
+import { Cron } from '@nestjs/schedule';
 
 import * as TradingView from '@mathieuc/tradingview';
 import redis from 'src/utils/redisHelper';
@@ -37,6 +38,7 @@ import { prepareNotifyMsg } from 'src/utils';
 
 @Injectable()
 export class PatternsService {
+  @Cron('3 */15 * * * *')
   async processPatterns() {
     const self = this;
     // const data = await smart_api.getCandleData({
@@ -47,11 +49,6 @@ export class PatternsService {
     //   todate: '2021-02-10 09:16',
     // });
 
-    // console.log('data: ', data);
-    // TradingView.loginUser('ludokhelo99@gmail.com', 'Vodafone8053#', false)
-    //   .then((user) => {
-    //     console.log('User:', user);
-    //     console.log('Sessionid:', user.session);
     const sessionId = await redis.get('TRADINGVIEW_SESSION');
     (async function () {
       const connection = await connect({
@@ -65,7 +62,11 @@ export class PatternsService {
       });
       await connection.close();
       const patterns = self.findPatterns(candles);
-      botHelper.sendMsgToChannel(prepareNotifyMsg(patterns));
+      const msgs = prepareNotifyMsg(patterns);
+      for (let msg of msgs) {
+        await botHelper.sendMsgToChannel(msg);
+      }
+      // botHelper.sendMsgToChannel(prepareNotifyMsg(patterns));
     })();
     //   })
     //   .catch((err) => {
