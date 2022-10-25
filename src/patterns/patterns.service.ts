@@ -111,7 +111,7 @@ export class PatternsService {
     results.sort(function (a, b) {
       return a.timestamp - b.timestamp;
     });
-    console.log('results: ', results);
+    // console.log('results: ', results);
     return results;
   }
 }
