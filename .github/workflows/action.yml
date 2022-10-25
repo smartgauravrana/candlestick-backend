@@ -17,6 +17,11 @@ jobs:
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Install node_modules
         run: yarn
+      - name: Creating .env file
+        run: |
+          echo ${{ secrets.BOT_TOKEN}} >> .env
+          echo ${{ secrets.TRADINGVIEW_EMAIL}} >> .env
+          echo ${{ secrets.TRADINGVIEW_PASSWORD}} >> .env
       - name: Build the project
         run: yarn build
       - name: Listing files and remove node_modules
@@ -25,5 +30,9 @@ jobs:
           rm -rf node_modules
       - name: Deploy with rsync
         run: rsync -avz * root@${{ secrets.SSH_HOST }}:./app
+      - name: Installing node_modules on remote
+        run: |
+          ssh -y root@${{ secrets.SSH_HOST }}
+          yarn
       - name: Setup finish
         run: echo "Setup Finished!"
