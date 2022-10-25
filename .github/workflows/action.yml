@@ -32,10 +32,6 @@ jobs:
         run: rsync -avz * root@${{ secrets.SSH_HOST }}:./app
       - name: Installing node_modules on remote
         run: |
-          ssh -y root@${{ secrets.SSH_HOST }}
-          echo 'before install'
-          ls -a
-          yarn
-          ls
+          ssh -y root@${{ secrets.SSH_HOST }} 'cd app && yarn'
       - name: Setup finish
         run: echo "Setup Finished!"
