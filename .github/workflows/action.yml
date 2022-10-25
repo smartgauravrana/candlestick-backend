@@ -30,6 +30,7 @@ jobs:
           rm -rf node_modules
       - name: Deploy with rsync
         run: rsync -avz * root@${{ secrets.SSH_HOST }}:./app
+        run: rsync -avz .env root@${{ secrets.SSH_HOST }}:./app
       - name: Installing node_modules on remote
         run: |
           ssh -y root@${{ secrets.SSH_HOST }} 'cd app && yarn'
