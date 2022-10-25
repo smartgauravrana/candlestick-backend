@@ -28,7 +28,6 @@
     "@nestjs/platform-express": "^9.0.0",
     "candlestick": "^0.0.5",
     "dayjs": "^1.11.6",
-    "finnhub": "^1.2.16",
     "i": "^0.3.7",
     "ioredis": "^5.2.3",
     "npm": "^8.19.2",
