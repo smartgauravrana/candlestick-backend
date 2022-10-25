@@ -8,9 +8,20 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: 16
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Install node_modules
         run: yarn
       - name: Build the project
         run: yarn build
+      - name: Listing files
+        run: ls -a
+      - name: Deploy with rsync
+        run: rsync -avz ./dist/ root@${{ secrets.SSH_HOST }}:./dist
       - name: Setup finish
         run: echo "Setup Finished!"
