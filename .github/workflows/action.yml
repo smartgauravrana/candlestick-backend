@@ -21,7 +21,7 @@ jobs:
         run: |
           echo BOT_TOKEN=${{ secrets.BOT_TOKEN}} >> .env
           echo TRADINGVIEW_EMAIL=${{ secrets.TRADINGVIEW_EMAIL}} >> .env
-          echo TRADINGVIEW_PASSWORD='${{ secrets.TRADINGVIEW_PASSWORD}}' >> .env
+          echo TRADINGVIEW_PASSWORD=\'${{ secrets.TRADINGVIEW_PASSWORD}}\' >> .env
       - name: Build the project
         run: yarn build
       - name: Listing files and remove node_modules
@@ -32,8 +32,12 @@ jobs:
         run: |
           rsync -avz * root@${{ secrets.SSH_HOST }}:./app
           rsync -avz .env root@${{ secrets.SSH_HOST }}:./app
-      - name: Installing node_modules on remote
+      - name: Executing cmd on remote
         run: |
           ssh -y root@${{ secrets.SSH_HOST }} 'cd app && yarn'
+          ssh -y root@${{ secrets.SSH_HOST }} 'yarn global add pm2'
+          ssh -y root@${{ secrets.SSH_HOST }} 'pm2 start dist/main.js --name candly'
+          ssh -y root@${{ secrets.SSH_HOST }} 'pm2 startup systemd'
+          ssh -y root@${{ secrets.SSH_HOST }} 'pm2 save'
       - name: Setup finish
         run: echo "Setup Finished!"
