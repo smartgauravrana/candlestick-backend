@@ -19,9 +19,11 @@ jobs:
         run: yarn
       - name: Build the project
         run: yarn build
-      - name: Listing files
-        run: ls -a
+      - name: Listing files and remove node_modules
+        run: |
+          ls -a
+          rm -rf node_modules
       - name: Deploy with rsync
-        run: rsync -avz ./dist/ root@${{ secrets.SSH_HOST }}:./dist
+        run: rsync -avz * root@${{ secrets.SSH_HOST }}:./app
       - name: Setup finish
         run: echo "Setup Finished!"
