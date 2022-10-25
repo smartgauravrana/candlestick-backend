@@ -21,7 +21,7 @@ jobs:
         run: |
           echo BOT_TOKEN=${{ secrets.BOT_TOKEN}} >> .env
           echo TRADINGVIEW_EMAIL=${{ secrets.TRADINGVIEW_EMAIL}} >> .env
-          echo TRADINGVIEW_PASSWORD='${{ secrets.TRADINGVIEW_PASSWORD}}'' >> .env
+          echo TRADINGVIEW_PASSWORD='${{ secrets.TRADINGVIEW_PASSWORD}}' >> .env
       - name: Build the project
         run: yarn build
       - name: Listing files and remove node_modules
