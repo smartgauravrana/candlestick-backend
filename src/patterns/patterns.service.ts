@@ -12,6 +12,15 @@ import * as TradingView from '@mathieuc/tradingview';
 import redis from 'src/utils/redisHelper';
 import { botHelper } from 'src/bot/botHelper';
 import { prepareNotifyMsg } from 'src/utils';
+// import utc from 'dayjs/plugin/utc';
+// import timezone from 'dayjs/plugin/timezone';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const tz = 'Asia/Kolkata';
 
 // let smart_api = new SmartAPI({
 //   api_key: 'C9QmpRTC', // PROVIDE YOUR API KEY HERE
@@ -63,7 +72,7 @@ export class PatternsService {
       await connection.close();
       const patterns = self.findPatterns(candles);
       const msgs = prepareNotifyMsg(patterns);
-      for (let msg of msgs) {
+      for (const msg of msgs) {
         await botHelper.sendMsgToChannel(msg);
       }
       // botHelper.sendMsgToChannel(prepareNotifyMsg(patterns));
@@ -88,7 +97,10 @@ export class PatternsService {
               ...item,
               security: SECURITY_SYMBOLS[idx],
               pattern,
-              time: dayjs.unix(item.timestamp).format('DD/MM/YYYY HH:mm:ss A'),
+              time: dayjs
+                .unix(item.timestamp)
+                .tz(tz)
+                .format('DD/MM/YYYY HH:mm:ss A'),
             }));
 
           results.push(...matched);
@@ -99,7 +111,7 @@ export class PatternsService {
     results.sort(function (a, b) {
       return a.timestamp - b.timestamp;
     });
-    // console.log('results: ', results);
+    console.log('results: ', results);
     return results;
   }
 }
