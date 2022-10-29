@@ -21,42 +21,15 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const tz = 'Asia/Kolkata';
-
-// let smart_api = new SmartAPI({
-//   api_key: 'C9QmpRTC', // PROVIDE YOUR API KEY HERE
-// OPTIONAL : If user has valid access token and refresh token then it can be directly passed to the constructor.
-// access_token: "YOUR_ACCESS_TOKEN",
-// refresh_token: "YOUR_REFRESH_TOKEN"
-// });
-
-// console.log('smart: ', smart_api);
-// const totp = getToken('FEDK4NL44DPFY7LWSJXKQNA5E4');
-
-// smart_api
-//   .generateSession('client', 'password', totp)
-//   .then((data) => {
-//     return smart_api.getProfile();
-//   })
-//   .then((data) => {
-//     // Profile details
-//   })
-//   .catch((ex) => {
-//     //Log error
-//     console.log('error: ', ex);
-//   });
+const getMsgSendKey = (security: string, ts: string | number): string => {
+  return security + '#' + ts;
+};
 
 @Injectable()
 export class PatternsService {
-  @Cron('3 */15 * * * *')
+  @Cron('3 */2 * * * *')
   async processPatterns() {
     const self = this;
-    // const data = await smart_api.getCandleData({
-    //   exchange: 'NSE',
-    //   symboltoken: 'TCS',
-    //   interval: 'ONE_MINUTE',
-    //   fromdate: '2021-02-10 09:15',
-    //   todate: '2021-02-10 09:16',
-    // });
 
     const sessionId = await redis.get('TRADINGVIEW_SESSION');
     (async function () {
@@ -69,13 +42,27 @@ export class PatternsService {
         amount: 20,
         timeframe: 15,
       });
+      // console.log('candles: ', candles[0]);
       await connection.close();
       const patterns = self.findPatterns(candles);
-      const msgs = prepareNotifyMsg(patterns);
+      const hash = await redis.hgetall('MSG_SEND');
+      const updateObj = {};
+      const filtered = patterns.filter((item) => {
+        const key = getMsgSendKey(item.security, item.timestamp);
+        if (hash[key]) {
+          return false;
+        } else {
+          updateObj[key] = 1;
+          return true;
+        }
+      });
+      const msgs = prepareNotifyMsg(filtered);
       for (const msg of msgs) {
         await botHelper.sendMsgToChannel(msg);
       }
-      // botHelper.sendMsgToChannel(prepareNotifyMsg(patterns));
+      if (Object.keys(updateObj).length > 0) {
+        await redis.hset('MSG_SEND', updateObj);
+      }
     })();
     //   })
     //   .catch((err) => {
@@ -100,7 +87,7 @@ export class PatternsService {
               time: dayjs
                 .unix(item.timestamp)
                 .tz(tz)
-                .format('DD/MM/YYYY HH:mm:ss A'),
+                .format('DD/MM/YYYY hh:mm:ss A'),
             }));
 
           results.push(...matched);

@@ -1,5 +1,9 @@
 export const SECURITY_SYMBOLS = [
+  'ETHUSD',
   'BTCUSD',
+  'XRPUSD',
+  'SHIBUSDT',
+  'LTCUSD',
   'NSE:TCS',
   'NSE:SBIN',
   'NSE:HDFCBANK',
