@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { botHelper } from './bot/botHelper';
-import { loginTradingView } from './utils/tradingViewHelper';
+import { loginTradingView } from './common/utils/tradingViewHelper';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

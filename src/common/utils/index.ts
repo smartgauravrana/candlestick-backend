@@ -31,3 +31,10 @@ export const prepareNotifyMsg = (records = []) => {
   //   console.log('msg: ', msg);
   return sliceMsg(msg);
 };
+
+export const getMsgSendKey = (
+  security: string,
+  ts: string | number,
+): string => {
+  return security + '#' + ts;
+};
