@@ -1,76 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import * as candlestick from 'candlestick';
-import { connect, getCandles } from 'tradingview-ws';
-import { NseIndia } from 'stock-nse-india';
-import { AVAILABLE_CANDLESTICK_PATTERNS, SECURITY_SYMBOLS } from './constants';
 import * as dayjs from 'dayjs';
-import { SmartAPI, WebSocket } from 'smartapi-javascript';
-import * as getToken from 'totp-generator';
-import { Cron } from '@nestjs/schedule';
-
-import * as TradingView from '@mathieuc/tradingview';
-import redis from 'src/utils/redisHelper';
+import redis from 'src/common/utils/redisHelper';
 import { botHelper } from 'src/bot/botHelper';
-import { prepareNotifyMsg } from 'src/utils';
-// import utc from 'dayjs/plugin/utc';
-// import timezone from 'dayjs/plugin/timezone';
+import { getMsgSendKey, prepareNotifyMsg } from 'src/common/utils';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
+import { MarketDataService } from 'src/common/services/market-data/market-data.service';
+import { MarketData } from 'src/common/interfaces/market-data';
+import {
+  AVAILABLE_CANDLESTICK_PATTERNS,
+  REDIS_KEYS,
+  SECURITY_SYMBOLS,
+} from 'src/common/constants';
+import { Cron } from '@nestjs/schedule';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const tz = 'Asia/Kolkata';
-const getMsgSendKey = (security: string, ts: string | number): string => {
-  return security + '#' + ts;
-};
 
 @Injectable()
 export class PatternsService {
+  constructor(private marketDataService: MarketDataService) {}
   @Cron('3 */2 * * * *')
   async processPatterns() {
-    const self = this;
-
-    const sessionId = await redis.get('TRADINGVIEW_SESSION');
-    (async function () {
-      const connection = await connect({
-        sessionId,
-      });
-      const candles = await getCandles({
-        connection,
-        symbols: SECURITY_SYMBOLS,
-        amount: 20,
-        timeframe: 15,
-      });
-      // console.log('candles: ', candles[0]);
-      await connection.close();
-      const patterns = self.findPatterns(candles);
-      const hash = await redis.hgetall('MSG_SEND');
-      const updateObj = {};
-      const filtered = patterns.filter((item) => {
-        const key = getMsgSendKey(item.security, item.timestamp);
-        if (hash[key]) {
-          return false;
-        } else {
-          updateObj[key] = 1;
-          return true;
-        }
-      });
-      const msgs = prepareNotifyMsg(filtered);
-      for (const msg of msgs) {
-        await botHelper.sendMsgToChannel(msg);
+    const candles = await this.marketDataService.getDataByTimeFrame();
+    const patterns = this.findPatterns(candles);
+    const hash = await redis.hgetall(REDIS_KEYS.msgsSent);
+    const updateObj = {};
+    const filtered = patterns.filter((item) => {
+      const key = getMsgSendKey(item.security, item.timestamp);
+      if (hash[key]) {
+        return false;
+      } else {
+        updateObj[key] = 1;
+        return true;
       }
-      if (Object.keys(updateObj).length > 0) {
-        await redis.hset('MSG_SEND', updateObj);
-      }
-    })();
-    //   })
-    //   .catch((err) => {
-    //     console.error('Login error:', err.message);
-    //   });
+    });
+    const msgs = prepareNotifyMsg(filtered);
+    for (const msg of msgs) {
+      await botHelper.sendMsgToChannel(msg);
+    }
+    if (Object.keys(updateObj).length > 0) {
+      await redis.hset(REDIS_KEYS.msgsSent, updateObj);
+    }
   }
 
-  findPatterns(candles: any[]) {
+  findPatterns(candles: MarketData[][]) {
     const results = [];
 
     for (const [idx, item] of candles.entries()) {
@@ -98,7 +75,6 @@ export class PatternsService {
     results.sort(function (a, b) {
       return a.timestamp - b.timestamp;
     });
-    // console.log('results: ', results);
     return results;
   }
 }
