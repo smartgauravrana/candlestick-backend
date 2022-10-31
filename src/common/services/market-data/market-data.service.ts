@@ -15,7 +15,7 @@ export class MarketDataService {
       connection,
       symbols: SECURITY_SYMBOLS,
       amount: 20,
-      timeframe: 15,
+      timeframe: 60,
     });
     await connection.close();
     return candles;
