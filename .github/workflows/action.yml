@@ -21,7 +21,13 @@ jobs:
         run: |
           echo BOT_TOKEN=${{ secrets.BOT_TOKEN}} >> .env
           echo TRADINGVIEW_EMAIL=${{ secrets.TRADINGVIEW_EMAIL}} >> .env
-          echo TRADINGVIEW_PASSWORD=\'${{ secrets.TRADINGVIEW_PASSWORD}}\' >> .env
+          echo TRADINGVIEW_PASSWORD=${{ secrets.TRADINGVIEW_PASSWORD}} >> .env
+          echo OAUTH_GOOGLE_ID=${{ secrets.OAUTH_GOOGLE_ID}} >> .env
+          echo OAUTH_GOOGLE_SECRET=${{ secrets.OAUTH_GOOGLE_SECRET}} >> .env
+          echo OAUTH_GOOGLE_REDIRECT_URL=${{ secrets.OAUTH_GOOGLE_REDIRECT_URL}} >> .env
+          echo MONGODB_URI=${{ secrets.MONGODB_URI}} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET}} >> .env
+          echo WEB_APPURL=${{ secrets.WEB_APPURL}} >> .env
       - name: Build the project
         run: yarn build
       - name: Listing files and remove node_modules
