@@ -24,7 +24,6 @@ export class AuthController {
     // For now, we'll just show the user object
     const { accessToken } = await this.authService.login(req.user);
     res.cookie('jwt', accessToken, {
-      httpOnly: true,
       sameSite: 'lax',
     });
     return res.redirect(this.configService.get<string>('WEB_APPURL'));
