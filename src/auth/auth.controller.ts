@@ -8,10 +8,13 @@ import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class AuthController {
+  readonly WEB_URL: string;
   constructor(
     private authService: AuthService,
     private configService: ConfigService,
-  ) {}
+  ) {
+    this.WEB_URL = this.configService.get<string>('WEB_APPURL');
+  }
   @Get('auth/google')
   @UseGuards(GoogleOauthGuard)
   async googleAuth(@Req() _req) {
@@ -26,12 +29,18 @@ export class AuthController {
     res.cookie('jwt', accessToken, {
       sameSite: 'lax',
     });
-    return res.redirect(this.configService.get<string>('WEB_APPURL'));
+    return res.redirect(this.WEB_URL);
+  }
+
+  @Get('auth/signout')
+  async signOut(@Res() res: Response) {
+    res.clearCookie('jwt');
+    res.redirect(this.WEB_URL);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Req() req) {
-    return req.user;
+    return this.authService.getCurrentUser(req.user.userId);
   }
 }

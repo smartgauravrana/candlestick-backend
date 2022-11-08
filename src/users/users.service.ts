@@ -15,4 +15,8 @@ export class UsersService {
   async create(user: User): Promise<User> {
     return this.userModel.create(user);
   }
+
+  async getUser(query: any): Promise<User> {
+    return this.userModel.findOne(query);
+  }
 }
