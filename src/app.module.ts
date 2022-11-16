@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TickerModule } from './ticker/ticker.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { MongooseModule } from '@nestjs/mongoose';
       }),
       inject: [ConfigService],
     }),
+    TickerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { GoogleOauthGuard } from './google-oauth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { ConfigService } from '@nestjs/config';
+import { Public } from './public.decorator';
 
 @Controller()
 export class AuthController {
@@ -16,12 +17,14 @@ export class AuthController {
     this.WEB_URL = this.configService.get<string>('WEB_APPURL');
   }
   @Get('auth/google')
+  @Public()
   @UseGuards(GoogleOauthGuard)
   async googleAuth(@Req() _req) {
     // Guard redirects
   }
 
   @Get('auth/callback/google')
+  @Public()
   @UseGuards(GoogleOauthGuard)
   async googleAuthRedirect(@Req() req: Request, @Res() res: Response) {
     // For now, we'll just show the user object

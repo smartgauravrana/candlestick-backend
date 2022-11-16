@@ -7,3 +7,8 @@ export interface MarketData {
   security?: string;
   pattern?: string;
 }
+
+export interface GetMarketDataConfig {
+  amount: number;
+  timeframe: number;
+}
