@@ -10,5 +10,6 @@ export interface MarketData {
 
 export interface GetMarketDataConfig {
   amount: number;
-  timeframe: number;
+  timeframe: number | '1D' | '1W' | '1M';
+  symbols: string[];
 }

@@ -1,3 +1,12 @@
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+const tz = 'Asia/Kolkata';
+
 function sliceMsg(messageString) {
   const max_size = 4096;
 
@@ -16,13 +25,28 @@ function sliceMsg(messageString) {
   return messages;
 }
 
-export const prepareNotifyMsg = (records = []) => {
+const defaultMsgFormatter = (info) => {
+  return `
+  ${info.security.replace('NSE:', '')} 
+  pattern: ${info.pattern}
+  time: ${info.time}
+  `;
+};
+
+export const macdMsgFormatter = (info) => {
+  return `
+  ✅ ${info.security.replace('NSE:', '')} 
+  indicator: MACD
+  time: ${dayjs.unix(info.timestamp).tz(tz).format('D MMMM YYYY, h:mm:ss a')}
+  `;
+};
+
+export const prepareNotifyMsg = (
+  records = [],
+  msgFormatter = defaultMsgFormatter,
+) => {
   const msg = records.reduce((acc, curr, idx) => {
-    const newMsg = `
-    ${curr.security.replace('NSE:', '')} 
-    pattern: ${curr.pattern}
-    time: ${curr.time}
-    `;
+    const newMsg = msgFormatter(curr);
 
     acc += newMsg;
     return acc;

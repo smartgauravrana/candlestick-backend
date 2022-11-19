@@ -35,4 +35,5 @@ export const AVAILABLE_CANDLESTICK_PATTERNS = [
 export const REDIS_KEYS = {
   msgsSent: 'MSG_SEND',
   tradingViewSessionId: 'TRADINGVIEW_SESSION',
+  MACD_SENT: 'MACD_SENT',
 };
