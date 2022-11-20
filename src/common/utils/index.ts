@@ -1,6 +1,7 @@
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
+import { MacdOutput } from '../interfaces/market-data';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -33,9 +34,9 @@ const defaultMsgFormatter = (info) => {
   `;
 };
 
-export const macdMsgFormatter = (info) => {
+export const macdMsgFormatter = (info: MacdOutput) => {
   return `
-  ✅ ${info.security.replace('NSE:', '')} 
+  ${info.isBullish ? '✅' : '🛑'}${info.security.replace('NSE:', '')} 
   indicator: MACD
   time: ${dayjs.unix(info.timestamp).tz(tz).format('D MMMM YYYY, h:mm:ss a')}
   `;

@@ -11,7 +11,7 @@ import {
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
 import { MarketDataService } from 'src/common/services/market-data/market-data.service';
-import { MarketData } from 'src/common/interfaces/market-data';
+import { MacdOutput, MarketData } from 'src/common/interfaces/market-data';
 import {
   AVAILABLE_CANDLESTICK_PATTERNS,
   REDIS_KEYS,
@@ -118,7 +118,7 @@ export class PatternsService {
     return results;
   }
 
-  findMacd(candle: MarketData[]) {
+  findMacd(candle: MarketData[]): MacdOutput {
     const macdInput = {
       values: candle.map((candle) => candle.close),
       fastPeriod: 12,
@@ -139,19 +139,39 @@ export class PatternsService {
       .filter((item) => item.histogram && item.signal);
 
     // search for bullish
-    let bullishTs = null;
-    let idx = -1;
+    // let bullishTs = null;
+    // let bearishTs = null;
+    let bullIdx = -1;
+    let bearIdx = -1;
     for (let i = macdData.length - 1; i >= 0; i--) {
       const curr = macdData[i];
       if (curr.MACD > curr.signal) {
-        bullishTs = curr.timestamp;
-        idx = i;
+        // bullishTs = curr.timestamp;
+        bullIdx = i;
       } else {
         break;
       }
     }
-    if (bullishTs && idx > -1) {
-      return macdData[idx];
+    if (bullIdx > -1) {
+      const item: MacdOutput = macdData[bullIdx];
+      item.isBullish = true;
+      return item;
+    }
+
+    for (let i = macdData.length - 1; i >= 0; i--) {
+      const curr = macdData[i];
+      if (curr.MACD < curr.signal) {
+        // bearishTs = curr.timestamp;
+        bearIdx = i;
+      } else {
+        break;
+      }
+    }
+
+    if (bearIdx > -1) {
+      const item: MacdOutput = macdData[bearIdx];
+      item.isBullish = false;
+      return item;
     }
   }
 
