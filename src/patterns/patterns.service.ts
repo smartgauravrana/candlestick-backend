@@ -62,7 +62,7 @@ export class PatternsService {
     }
   }
 
-  @Cron('3 */10 * * * *')
+  @Cron('3 45 9 * * MON-FRI') // every 3:15 pm IST
   async macd() {
     // bullish, macd line > signal
     const batches = [];
